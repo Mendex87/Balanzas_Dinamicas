@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeltCalc</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>BeltCalc</h1>
+  <nav>
+    <button id="nav-velocidad">Velocidad</button>
+    <button id="nav-cadena">Cadena</button>
+    <button id="nav-factor">Factor</button>
+    <button id="nav-historial">Historial</button>
+  </nav>
+</header>
+<main>
+  <section id="section-velocidad" class="page">
+    <h2>Calculadora de velocidad</h2>
+    <div class="card">
+      <label>Diámetro de rueda/rolo (mm):
+        <input type="number" id="vel-diametro" min="0" step="any" placeholder="190">
+      </label>
+      <label>RPM medidas:
+        <input type="number" id="vel-rpm" min="0" step="any" placeholder="129.4">
+      </label>
+      <label>Velocidad indicada (m/s) [opcional]:
+        <input type="number" id="vel-indicada" min="0" step="any" placeholder="">
+      </label>
+      <button id="vel-calcular">Calcular</button>
+      <div id="vel-resultados" class="resultados"></div>
+      <button id="vel-guardar" class="guardar" style="display:none;">Guardar en historial</button>
+    </div>
+  </section>
+  <section id="section-cadena" class="page" hidden>
+    <h2>Calculadora de cadena de calibración</h2>
+    <div class="card">
+      <label>Largo total de cadena (m):
+        <input type="number" id="cad-largo-total" min="0" step="any" placeholder="3.28">
+      </label>
+      <label>Peso total (kg):
+        <input type="number" id="cad-peso-total" min="0" step="any" placeholder="64.67">
+      </label>
+      <label>Largo del tren de pesaje (m):
+        <input type="number" id="cad-largo-tren" min="0" step="any" placeholder="1">
+      </label>
+      <label>Velocidad de cinta (m/s):
+        <input type="number" id="cad-velocidad" min="0" step="any" placeholder="1.29">
+      </label>
+      <button id="cad-calcular">Calcular</button>
+      <div id="cad-resultados" class="resultados"></div>
+      <button id="cad-guardar" class="guardar" style="display:none;">Guardar en historial</button>
+    </div>
+  </section>
+  <section id="section-factor" class="page" hidden>
+    <h2>Calculadora de corrección de factor</h2>
+    <div class="card">
+      <label>Factor actual:
+        <input type="number" id="fac-actual" min="0" step="any" placeholder="0.800">
+      </label>
+      <label>Peso del controlador (tn):
+        <input type="number" id="fac-controlador" min="0" step="any" placeholder="17.410">
+      </label>
+      <label>Peso real externo (tn):
+        <input type="number" id="fac-real" min="0" step="any" placeholder="18.070">
+      </label>
+      <button id="fac-calcular">Calcular</button>
+      <div id="fac-resultados" class="resultados"></div>
+      <button id="fac-guardar" class="guardar" style="display:none;">Guardar en historial</button>
+    </div>
+  </section>
+  <section id="section-historial" class="page" hidden>
+    <h2>Historial de calibraciones</h2>
+    <div id="historial-contenido"></div>
+    <button id="historial-borrar" class="borrar">Borrar historial</button>
+  </section>
+</main>
+<footer>
+  <p>BeltCalc – Herramienta para balanzas y cintas transportadoras</p>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>

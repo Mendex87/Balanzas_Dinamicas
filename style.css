@@ -1,0 +1,121 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #222;
+  color: #f0f0f0;
+}
+
+header {
+  background-color: #333;
+  padding: 1rem;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+nav {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+nav button {
+  padding: 0.6rem 1rem;
+  border: none;
+  background-color: #444;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+nav button:hover {
+  background-color: #555;
+}
+
+main {
+  padding: 1rem;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.card {
+  background-color: #2d2d2d;
+  padding: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+label input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.2rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #3a3a3a;
+  color: #f0f0f0;
+}
+
+button.guardar,
+button.borrar {
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  background-color: #007acc;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button.guardar:hover,
+button.borrar:hover {
+  background-color: #0091e5;
+}
+
+.resultados {
+  margin-top: 1rem;
+  background-color: #1a1a1a;
+  padding: 0.8rem;
+  border-radius: 4px;
+  white-space: pre-line;
+}
+
+table.historial {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table.historial th,
+table.historial td {
+  border: 1px solid #555;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+table.historial th {
+  background-color: #333;
+}
+
+table.historial tr:nth-child(even) {
+  background-color: #2a2a2a;
+}
+
+footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #888;
+}
