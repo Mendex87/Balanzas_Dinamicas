@@ -14,7 +14,6 @@
     <button id="nav-velocidad">Velocidad</button>
     <button id="nav-cadena">Cadena</button>
     <button id="nav-factor">Factor</button>
-      <button id="nav-balanzas">Balanzas</button>
     <button id="nav-historial">Historial</button>
   </nav>
 </header>
@@ -22,9 +21,6 @@
   <section id="section-velocidad" class="page">
     <h2>Calculadora de velocidad</h2>
     <div class="card">
-      <label>Balanza:
-        <select id="vel-balanza"></select>
-      </label>
       <label>Diámetro de rueda/rolo (mm):
         <input type="number" id="vel-diametro" min="0" step="any" placeholder="190">
       </label>
@@ -42,9 +38,6 @@
   <section id="section-cadena" class="page" hidden>
     <h2>Calculadora de cadena de calibración</h2>
     <div class="card">
-      <label>Balanza:
-        <select id="cad-balanza"></select>
-      </label>
       <label>Largo total de cadena (m):
         <input type="number" id="cad-largo-total" min="0" step="any" placeholder="3.28">
       </label>
@@ -65,9 +58,6 @@
   <section id="section-factor" class="page" hidden>
     <h2>Calculadora de corrección de factor</h2>
     <div class="card">
-      <label>Balanza:
-        <select id="fac-balanza"></select>
-      </label>
       <label>Factor actual:
         <input type="number" id="fac-actual" min="0" step="any" placeholder="0.800">
       </label>
@@ -80,20 +70,6 @@
       <button id="fac-calcular">Calcular</button>
       <div id="fac-resultados" class="resultados"></div>
       <button id="fac-guardar" class="guardar" style="display:none;">Guardar en historial</button>
-    </div>
-  </section>
-  <section id="section-balanzas" class="page" hidden>
-    <h2>Gestión de balanzas (cintas)</h2>
-    <div class="card">
-      <h3>Añadir balanza</h3>
-      <label>Nombre de la balanza:
-        <input type="text" id="balanza-nombre" placeholder="C23">
-      </label>
-      <button id="balanza-agregar">Agregar</button>
-    </div>
-    <div class="card">
-      <h3>Listado de balanzas</h3>
-      <ul id="balanza-listado"></ul>
     </div>
   </section>
   <section id="section-historial" class="page" hidden>

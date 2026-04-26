@@ -4,115 +4,27 @@
   const navCad = document.getElementById('nav-cadena');
   const navFac = document.getElementById('nav-factor');
   const navHist = document.getElementById('nav-historial');
-  const navBal = document.getElementById('nav-balanzas');
 
   // Secciones
   const secVel = document.getElementById('section-velocidad');
   const secCad = document.getElementById('section-cadena');
   const secFac = document.getElementById('section-factor');
   const secHist = document.getElementById('section-historial');
-  const secBal = document.getElementById('section-balanzas');
 
   // Velocidad
   const velBtnCalcular = document.getElementById('vel-calcular');
   const velBtnGuardar = document.getElementById('vel-guardar');
   const velResultados = document.getElementById('vel-resultados');
-  const velSelect = document.getElementById('vel-balanza');
 
   // Cadena
   const cadBtnCalcular = document.getElementById('cad-calcular');
   const cadBtnGuardar = document.getElementById('cad-guardar');
   const cadResultados = document.getElementById('cad-resultados');
-  const cadSelect = document.getElementById('cad-balanza');
 
   // Factor
   const facBtnCalcular = document.getElementById('fac-calcular');
   const facBtnGuardar = document.getElementById('fac-guardar');
   const facResultados = document.getElementById('fac-resultados');
-  const facSelect = document.getElementById('fac-balanza');
-
-  // Balanzas
-  const balanzaNombreInput = document.getElementById('balanza-nombre');
-  const balanzaAgregarBtn = document.getElementById('balanza-agregar');
-  const balanzaListado = document.getElementById('balanza-listado');
-
-  // Endpoint de Google Sheets (Apps Script)
-  // Reemplace esta URL con la URL de su Web App de Google Apps Script (termina en /exec)
-  const GOOGLE_SHEETS_WEBAPP_URL = '';
-  
-  /* Funciones para manejar las balanzas.
-   * Las balanzas permiten identificar cada cinta o balanza dinámica en la planta.
-   * Se guardan en localStorage bajo la clave 'beltcalcBalanzas' y se utilizan para
-   * rellenar los selectores de cada calculadora.
-   */
-  function loadBalanzas() {
-    let balanzas = [];
-    try {
-      balanzas = JSON.parse(localStorage.getItem('beltcalcBalanzas')) || [];
-    } catch (e) {
-      balanzas = [];
-    }
-    // Actualizar listado en la página de balanzas
-    if (balanzaListado) {
-      balanzaListado.innerHTML = '';
-      balanzas.forEach((nombre, index) => {
-        const li = document.createElement('li');
-        li.textContent = nombre;
-        balanzaListado.appendChild(li);
-      });
-    }
-    // Actualizar selects en calculadoras
-    const selects = [velSelect, cadSelect, facSelect];
-    selects.forEach(sel => {
-      // limpiar opciones
-      while (sel.firstChild) {
-        sel.removeChild(sel.firstChild);
-      }
-      // añadir opción vacía
-      const optEmpty = document.createElement('option');
-      optEmpty.value = '';
-      optEmpty.textContent = '-- seleccionar --';
-      sel.appendChild(optEmpty);
-      // añadir cada balanza
-      balanzas.forEach(nombre => {
-        const opt = document.createElement('option');
-        opt.value = nombre;
-        opt.textContent = nombre;
-        sel.appendChild(opt);
-      });
-    });
-  }
-
-  function saveBalanzas(balanzas) {
-    localStorage.setItem('beltcalcBalanzas', JSON.stringify(balanzas));
-  }
-
-  // Manejar el evento para añadir una nueva balanza
-  if (balanzaAgregarBtn) {
-    balanzaAgregarBtn.addEventListener('click', () => {
-      const nombre = balanzaNombreInput.value.trim();
-      if (!nombre) {
-        alert('Ingrese un nombre para la balanza.');
-        return;
-      }
-      let balanzas = [];
-      try {
-        balanzas = JSON.parse(localStorage.getItem('beltcalcBalanzas')) || [];
-      } catch (e) {
-        balanzas = [];
-      }
-      // verificar si ya existe
-      if (balanzas.includes(nombre)) {
-        alert('Esta balanza ya existe.');
-        return;
-      }
-      balanzas.push(nombre);
-      saveBalanzas(balanzas);
-      balanzaNombreInput.value = '';
-      loadBalanzas();
-      alert('Balanza agregada.');
-    });
-  }
 
   // Historial
   const histContenido = document.getElementById('historial-contenido');
@@ -123,13 +35,10 @@
   navCad.addEventListener('click', () => showSection('cadena'));
   navFac.addEventListener('click', () => showSection('factor'));
   navHist.addEventListener('click', () => showSection('historial'));
-  navBal.addEventListener('click', () => showSection('balanzas'));
 
   function showSection(name) {
     // Ocultar todas
     [secVel, secCad, secFac, secHist].forEach(sec => sec.hidden = true);
-    // Incluir la sección de balanzas
-    secBal.hidden = true;
     // Mostrar la seleccionada
     switch (name) {
       case 'velocidad':
@@ -144,10 +53,6 @@
       case 'historial':
         secHist.hidden = false;
         loadHistory();
-        break;
-      case 'balanzas':
-        secBal.hidden = false;
-        loadBalanzas();
         break;
     }
   }
@@ -194,8 +99,7 @@
         velocidad_mh: velocidadMh,
         diferencia_ms: !isNaN(indic) ? (indic - velocidadMs) : null,
         error_porcentaje: !isNaN(indic) ? ((indic - velocidadMs) / velocidadMs) * 100 : null
-      },
-      balanza: velSelect.value || null
+      }
     });
   });
 
@@ -241,8 +145,7 @@
         kg_por_metro: kgPorMetro,
         kg_sobre_tren: kgSobreTren,
         toneladas_hora: toneladasHora
-      },
-      balanza: cadSelect.value || null
+      }
     });
   });
 
@@ -298,8 +201,7 @@
         error_kg: errorKg,
         error_porcentaje: errorPorcentaje,
         recomendacion: recomendacion
-      },
-      balanza: facSelect.value || null
+      }
     });
   });
 
@@ -323,30 +225,6 @@
     }
     history.push(record);
     localStorage.setItem(key, JSON.stringify(history));
-    // También enviar a Google Sheets si se configuró el endpoint
-    sendToSheets(record);
-  }
-
-  // Enviar registro a Google Sheets a través de Apps Script
-  function sendToSheets(record) {
-    // Si no se configuró la URL, no enviar nada
-    if (!GOOGLE_SHEETS_WEBAPP_URL) return;
-    // Usar fetch con Content-Type text/plain para evitar preflight CORS
-    try {
-      fetch(GOOGLE_SHEETS_WEBAPP_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        },
-        body: JSON.stringify(record)
-      }).then(() => {
-        // No se necesita procesar la respuesta
-      }).catch(err => {
-        console.error('Error al enviar a Google Sheets:', err);
-      });
-    } catch (err) {
-      console.error('Error al intentar enviar a Google Sheets:', err);
-    }
   }
 
   // Cargar historial y construir tabla
@@ -379,8 +257,7 @@
         datos += `Factor actual: ${rec.entrada.factor_actual}, Controlador: ${rec.entrada.peso_controlador_tn} tn, Real: ${rec.entrada.peso_real_tn} tn\n`;
         datos += `Factor nuevo: ${rec.resultado.factor_nuevo.toFixed(3)}, Error %: ${rec.resultado.error_porcentaje.toFixed(2)}`;
       }
-      const balanza = rec.balanza ? rec.balanza : null;
-      html += `<tr><td>${fecha}</td><td>${rec.type}</td><td><pre>${datos}${balanza ? '\nBalanza: ' + balanza : ''}</pre></td></tr>`;
+      html += `<tr><td>${fecha}</td><td>${rec.type}</td><td><pre>${datos}</pre></td></tr>`;
     });
     html += '</tbody></table>';
     histContenido.innerHTML = html;
@@ -395,8 +272,6 @@
   });
 
   // Inicializa mostrando la primera sección
-  // Cargar balanzas disponibles y seleccionar sección inicial
-  loadBalanzas();
   showSection('velocidad');
 
   // Registro de service worker para PWA
