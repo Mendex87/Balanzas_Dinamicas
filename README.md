@@ -21,9 +21,21 @@
 4. Pulse **Guardar en historial** para registrar la prueba. Esta información se guarda en el navegador y se mostrará en la sección de **Historial**.
 5. Para borrar todos los registros, utilice el botón **Borrar historial** en la sección de historial.
 
-### Gestión de balanzas
+### Gestión de balanzas y selección obligatoria
 
-Abra la sección **Balanzas** para registrar las cintas disponibles en su planta. Introduzca el nombre (por ejemplo, `C23` o `C10`) y pulse **Agregar**. Las balanzas registradas aparecen listadas y se cargan automáticamente en los selectores de las calculadoras. Al guardar un registro, también se almacena el nombre de la balanza seleccionada.
+Antes de usar cualquiera de las calculadoras, **debe crear o seleccionar una balanza**. Esto garantiza que cada medición quede asociada a la cinta correcta y que algunos valores se precarguen automáticamente.
+
+Para ello, abra la sección **Balanzas** y complete los siguientes campos:
+
+- **Nombre de la balanza:** identificador único de la cinta (por ejemplo, `C23`, `C10`, `Transportadora 1`).
+- **Diámetro de rueda/rolo (mm):** valor en milímetros que se utiliza en la calculadora de velocidad.
+- **Largo del tren de pesaje (m):** longitud del tramo donde se apoya la carga. Se utiliza para calcular la carga sobre el tren en la calculadora de cadena.
+- **Separación entre rolos (m):** distancia entre ejes de los rolos del tren. Se almacena para referencias futuras.
+- **Cantidad de rolos en tren de pesaje:** número de rolos que componen el tren de pesaje.
+
+Pulse **Agregar** para guardar la balanza. Al seleccionarla desde el listado, la aplicación la tomará como **balanza activa** y precargará los valores correspondientes en los formularios de las calculadoras. Si intenta realizar un cálculo sin haber seleccionado una balanza, la app le avisará que debe seleccionar una.
+
+Las balanzas registradas se guardan en `localStorage` bajo la clave `beltcalcBalanzas`. Además, la balanza activa se recuerda entre sesiones mediante `beltcalcCurrentBalanza`. Puede cambiar de balanza en cualquier momento seleccionando otra desde los desplegables de las calculadoras o pulsando sobre su nombre en el listado de la sección de balanzas.
 
 ### Envío de registros a Google Sheets
 

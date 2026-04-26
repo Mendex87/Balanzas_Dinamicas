@@ -31,10 +31,18 @@
   const facResultados = document.getElementById('fac-resultados');
   const facSelect = document.getElementById('fac-balanza');
 
-  // Balanzas
+  // Balanzas: campos de alta y listado
   const balanzaNombreInput = document.getElementById('balanza-nombre');
+  const balanzaDiamInput = document.getElementById('balanza-diametro');
+  const balanzaLargoTrenInput = document.getElementById('balanza-largo-tren');
+  const balanzaSeparacionInput = document.getElementById('balanza-separacion');
+  const balanzaNumRolosInput = document.getElementById('balanza-num-rolos');
   const balanzaAgregarBtn = document.getElementById('balanza-agregar');
   const balanzaListado = document.getElementById('balanza-listado');
+
+  // Variables para balanzas y la balanza actualmente seleccionada
+  let balanzas = [];
+  let currentBalanza = null;
 
   // Endpoint de Google Sheets (Apps Script)
   // Reemplace esta URL con la URL de su Web App de Google Apps Script (termina en /exec)
@@ -46,18 +54,35 @@
    * rellenar los selectores de cada calculadora.
    */
   function loadBalanzas() {
-    let balanzas = [];
+    // Recuperar balanzas de localStorage. Puede contener objetos o nombres de versiones anteriores.
+    let stored = [];
     try {
-      balanzas = JSON.parse(localStorage.getItem('beltcalcBalanzas')) || [];
+      stored = JSON.parse(localStorage.getItem('beltcalcBalanzas')) || [];
     } catch (e) {
-      balanzas = [];
+      stored = [];
     }
+    // Normalizar a objetos
+    balanzas = stored.map(item => {
+      if (typeof item === 'string') {
+        return { nombre: item, diametro: null, largoTren: null, separacion: null, numRolos: null };
+      }
+      return item;
+    });
+    // Persistir la normalización
+    localStorage.setItem('beltcalcBalanzas', JSON.stringify(balanzas));
     // Actualizar listado en la página de balanzas
     if (balanzaListado) {
       balanzaListado.innerHTML = '';
-      balanzas.forEach((nombre, index) => {
+      balanzas.forEach((b, index) => {
         const li = document.createElement('li');
-        li.textContent = nombre;
+        li.textContent = b.nombre;
+        li.dataset.index = index;
+        li.style.cursor = 'pointer';
+        li.addEventListener('click', () => {
+          selectBalanza(index);
+          // Navegar a calculators al seleccionar
+          showSection('velocidad');
+        });
         balanzaListado.appendChild(li);
       });
     }
@@ -74,17 +99,46 @@
       optEmpty.textContent = '-- seleccionar --';
       sel.appendChild(optEmpty);
       // añadir cada balanza
-      balanzas.forEach(nombre => {
+      balanzas.forEach((b, idx) => {
         const opt = document.createElement('option');
-        opt.value = nombre;
-        opt.textContent = nombre;
+        opt.value = idx;
+        opt.textContent = b.nombre;
         sel.appendChild(opt);
       });
     });
+    // Si ya hay una balanza seleccionada previamente, seleccionarla en los selects
+    const currentIndex = parseInt(localStorage.getItem('beltcalcCurrentBalanza'), 10);
+    if (!isNaN(currentIndex) && balanzas[currentIndex]) {
+      selectBalanza(currentIndex, false);
+    }
   }
 
-  function saveBalanzas(balanzas) {
-    localStorage.setItem('beltcalcBalanzas', JSON.stringify(balanzas));
+  function saveBalanzas(bal) {
+    localStorage.setItem('beltcalcBalanzas', JSON.stringify(bal));
+  }
+
+  function selectBalanza(index, updateForms = true) {
+    currentBalanza = balanzas[index];
+    localStorage.setItem('beltcalcCurrentBalanza', index);
+    // Actualizar selects para reflejar selección
+    [velSelect, cadSelect, facSelect].forEach(sel => {
+      sel.value = index;
+    });
+    // Rellenar formularios con parámetros de balanza
+    if (updateForms && currentBalanza) {
+      fillFormsFromBalanza(currentBalanza);
+    }
+  }
+
+  function fillFormsFromBalanza(b) {
+    if (!b) return;
+    // Velocidad: diámetro
+    const diamInput = document.getElementById('vel-diametro');
+    if (b.diametro) diamInput.value = b.diametro;
+    // Cadena: largo tren
+    const largoTrenInput = document.getElementById('cad-largo-tren');
+    if (b.largoTren) largoTrenInput.value = b.largoTren;
+    // Otros campos (podrían usarse en el futuro)
   }
 
   // Manejar el evento para añadir una nueva balanza
@@ -95,20 +149,49 @@
         alert('Ingrese un nombre para la balanza.');
         return;
       }
-      let balanzas = [];
-      try {
-        balanzas = JSON.parse(localStorage.getItem('beltcalcBalanzas')) || [];
-      } catch (e) {
-        balanzas = [];
+      // leer parámetros mecánicos
+      const diametro = parseFloat(balanzaDiamInput.value);
+      const largoTren = parseFloat(balanzaLargoTrenInput.value);
+      const separacion = parseFloat(balanzaSeparacionInput.value);
+      const numRolos = parseInt(balanzaNumRolosInput.value, 10);
+      // validar mínimos
+      if ([diametro, largoTren, separacion].some(x => isNaN(x) || x <= 0)) {
+        alert('Ingrese valores válidos para diámetro, largo de tren y separación.');
+        return;
       }
-      // verificar si ya existe
-      if (balanzas.includes(nombre)) {
+      // Recuperar balanzas existentes
+      let stored = [];
+      try {
+        stored = JSON.parse(localStorage.getItem('beltcalcBalanzas')) || [];
+      } catch (e) {
+        stored = [];
+      }
+      // Normalizar a objetos
+      const list = stored.map(item => {
+        if (typeof item === 'string') return { nombre: item };
+        return item;
+      });
+      // verificar si ya existe por nombre
+      if (list.some(b => b.nombre === nombre)) {
         alert('Esta balanza ya existe.');
         return;
       }
-      balanzas.push(nombre);
-      saveBalanzas(balanzas);
+      // crear objeto balanza
+      const balanzaObj = {
+        nombre,
+        diametro,
+        largoTren,
+        separacion,
+        numRolos: isNaN(numRolos) ? null : numRolos
+      };
+      list.push(balanzaObj);
+      saveBalanzas(list);
+      // limpiar inputs
       balanzaNombreInput.value = '';
+      balanzaDiamInput.value = '';
+      balanzaLargoTrenInput.value = '';
+      balanzaSeparacionInput.value = '';
+      balanzaNumRolosInput.value = '';
       loadBalanzas();
       alert('Balanza agregada.');
     });
@@ -154,6 +237,12 @@
 
   // Calculadora de velocidad
   velBtnCalcular.addEventListener('click', () => {
+    // Verificar que se haya seleccionado una balanza
+    if (!currentBalanza) {
+      alert('Seleccione una balanza antes de calcular.');
+      velBtnGuardar.style.display = 'none';
+      return;
+    }
     const diam = parseFloat(document.getElementById('vel-diametro').value);
     const rpm = parseFloat(document.getElementById('vel-rpm').value);
     const indic = parseFloat(document.getElementById('vel-indicada').value);
@@ -195,7 +284,13 @@
         diferencia_ms: !isNaN(indic) ? (indic - velocidadMs) : null,
         error_porcentaje: !isNaN(indic) ? ((indic - velocidadMs) / velocidadMs) * 100 : null
       },
-      balanza: velSelect.value || null
+      balanza: currentBalanza ? currentBalanza.nombre : (velSelect.value || null),
+      balanza_params: currentBalanza ? {
+        diametro: currentBalanza.diametro,
+        largoTren: currentBalanza.largoTren,
+        separacion: currentBalanza.separacion,
+        numRolos: currentBalanza.numRolos
+      } : null
     });
   });
 
@@ -210,6 +305,12 @@
 
   // Calculadora de cadena
   cadBtnCalcular.addEventListener('click', () => {
+    // Verificar balanza seleccionada
+    if (!currentBalanza) {
+      alert('Seleccione una balanza antes de calcular.');
+      cadBtnGuardar.style.display = 'none';
+      return;
+    }
     const largoTotal = parseFloat(document.getElementById('cad-largo-total').value);
     const pesoTotal = parseFloat(document.getElementById('cad-peso-total').value);
     const largoTren = parseFloat(document.getElementById('cad-largo-tren').value);
@@ -242,7 +343,13 @@
         kg_sobre_tren: kgSobreTren,
         toneladas_hora: toneladasHora
       },
-      balanza: cadSelect.value || null
+      balanza: currentBalanza ? currentBalanza.nombre : (cadSelect.value || null),
+      balanza_params: currentBalanza ? {
+        diametro: currentBalanza.diametro,
+        largoTren: currentBalanza.largoTren,
+        separacion: currentBalanza.separacion,
+        numRolos: currentBalanza.numRolos
+      } : null
     });
   });
 
@@ -257,6 +364,12 @@
 
   // Calculadora de factor
   facBtnCalcular.addEventListener('click', () => {
+    // Verificar balanza seleccionada
+    if (!currentBalanza) {
+      alert('Seleccione una balanza antes de calcular.');
+      facBtnGuardar.style.display = 'none';
+      return;
+    }
     const factorActual = parseFloat(document.getElementById('fac-actual').value);
     const pesoControlador = parseFloat(document.getElementById('fac-controlador').value);
     const pesoReal = parseFloat(document.getElementById('fac-real').value);
@@ -299,7 +412,13 @@
         error_porcentaje: errorPorcentaje,
         recomendacion: recomendacion
       },
-      balanza: facSelect.value || null
+      balanza: currentBalanza ? currentBalanza.nombre : (facSelect.value || null),
+      balanza_params: currentBalanza ? {
+        diametro: currentBalanza.diametro,
+        largoTren: currentBalanza.largoTren,
+        separacion: currentBalanza.separacion,
+        numRolos: currentBalanza.numRolos
+      } : null
     });
   });
 
@@ -380,7 +499,17 @@
         datos += `Factor nuevo: ${rec.resultado.factor_nuevo.toFixed(3)}, Error %: ${rec.resultado.error_porcentaje.toFixed(2)}`;
       }
       const balanza = rec.balanza ? rec.balanza : null;
-      html += `<tr><td>${fecha}</td><td>${rec.type}</td><td><pre>${datos}${balanza ? '\nBalanza: ' + balanza : ''}</pre></td></tr>`;
+      let balParamsText = '';
+      if (rec.balanza_params) {
+        const p = rec.balanza_params;
+        const parts = [];
+        if (p.diametro) parts.push(`D: ${p.diametro} mm`);
+        if (p.largoTren) parts.push(`LTren: ${p.largoTren} m`);
+        if (p.separacion) parts.push(`Sep: ${p.separacion} m`);
+        if (p.numRolos) parts.push(`Rol: ${p.numRolos}`);
+        if (parts.length) balParamsText = `\nParámetros: ${parts.join(', ')}`;
+      }
+      html += `<tr><td>${fecha}</td><td>${rec.type}</td><td><pre>${datos}${balanza ? '\nBalanza: ' + balanza : ''}${balParamsText}</pre></td></tr>`;
     });
     html += '</tbody></table>';
     histContenido.innerHTML = html;
@@ -397,6 +526,18 @@
   // Inicializa mostrando la primera sección
   // Cargar balanzas disponibles y seleccionar sección inicial
   loadBalanzas();
+
+  // Agregar eventos a selects de balanza para prellenar formularios
+  [velSelect, cadSelect, facSelect].forEach((sel) => {
+    sel.addEventListener('change', () => {
+      const idx = parseInt(sel.value, 10);
+      if (!isNaN(idx) && balanzas[idx]) {
+        selectBalanza(idx);
+      }
+    });
+  });
+
+  // Mostrar sección inicial
   showSection('velocidad');
 
   // Registro de service worker para PWA

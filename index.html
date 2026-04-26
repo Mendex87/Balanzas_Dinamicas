@@ -84,10 +84,23 @@
   </section>
   <section id="section-balanzas" class="page" hidden>
     <h2>Gestión de balanzas (cintas)</h2>
+    <p>Antes de usar las calculadoras debe seleccionar o crear una balanza.  Cada balanza registra sus parámetros mecánicos, que se utilizarán para precargar los datos de las calculadoras.</p>
     <div class="card">
       <h3>Añadir balanza</h3>
       <label>Nombre de la balanza:
         <input type="text" id="balanza-nombre" placeholder="C23">
+      </label>
+      <label>Diámetro de rueda/rolo (mm):
+        <input type="number" id="balanza-diametro" min="0" step="any" placeholder="190">
+      </label>
+      <label>Largo del tren de pesaje (m):
+        <input type="number" id="balanza-largo-tren" min="0" step="any" placeholder="1">
+      </label>
+      <label>Separación entre rolos (m):
+        <input type="number" id="balanza-separacion" min="0" step="any" placeholder="1">
+      </label>
+      <label>Cantidad de rolos en tren de pesaje:
+        <input type="number" id="balanza-num-rolos" min="0" step="1" placeholder="3">
       </label>
       <button id="balanza-agregar">Agregar</button>
     </div>
